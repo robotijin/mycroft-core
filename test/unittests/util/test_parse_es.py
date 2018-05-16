@@ -15,7 +15,11 @@
 # limitations under the License.
 #
 import unittest
+from datetime import datetime
 
+from mycroft.util.parse import get_gender
+from mycroft.util.parse import extract_datetime
+from mycroft.util.parse import extractnumber
 from mycroft.util.parse import normalize
 
 
@@ -39,8 +43,8 @@ class TestNormalize(unittest.TestCase):
         self.assertEqual(normalize("esto es cuatro cinco seis prueba",
                                    lang="es"),
                          "esto es 4 5 6 prueba")
-        self.assertEqual(normalize(u"siete mï¿½s ocho mï¿½s nueve", lang="es"),
-                         u"7 mï¿½s 8 mï¿½s 9")
+        self.assertEqual(normalize(u"siete mil ocho mil nueve", lang="es"),
+                         u"7008 mil 9")
         self.assertEqual(normalize("diez once doce trece catorce quince",
                                    lang="es"),
                          "10 11 12 13 14 15")
@@ -75,7 +79,28 @@ class TestNormalize(unittest.TestCase):
             u"novecientos noventa y nueve mil novecientos noventa y nueve",
             lang="es"),
             "999999")
-
+        self.assertEqual(extractnumber("una copa y media", lang="es"), 1.5)
+        self.assertEqual(extractnumber("dos cuartos", lang="es"), 0.5)
+        self.assertEqual(extractnumber("un cuarto de copa", lang="es"), 0.25)
+        self.assertEqual(extractnumber(u" una veinteava parte", lang="es"),
+                         1.0 / 20)
+        self.assertEqual(extractnumber("este es la primera prueba", lang="es"),
+                         1)
+        self.assertEqual(extractnumber("este es el segundo test", lang="es"),
+                         2)
+        self.assertEqual(extractnumber("este es el tercer test", lang="es"),
+                         3)
+        self.assertEqual(extractnumber(u"este es el test número 4", lang="es"),
+                         4)
+        self.assertEqual(extractnumber("un tercio de copa", lang="es"), 1.0 / 3.0)
+        self.assertEqual(extractnumber("esto son tres copas", lang="es"), 3)
+        self.assertEqual(extractnumber("1/3 copa", lang="es"), 1.0 / 3.0)
+        self.assertEqual(extractnumber("1/4 de copa", lang="es"), 0.25)
+        self.assertEqual(extractnumber("2/3 de copa", lang="es"), 2.0 / 3.0)
+        self.assertEqual(extractnumber("3/4 de copa", lang="es"), 3.0 / 4.0)
+        self.assertEqual(extractnumber("1 y 3/4 copas", lang="es"), 1.75)
+        self.assertEqual(extractnumber("1 y medio", lang="es"), 1.5)
+        self.assertEqual(extractnumber("tres cuartos de copa", lang="es"), 3.0 / 4.0)
 
 if __name__ == "__main__":
     unittest.main()
