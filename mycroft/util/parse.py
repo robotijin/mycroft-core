@@ -80,6 +80,8 @@ def extractnumber(text, lang="en-us"):
     if lang_lower.startswith("en"):
         # return extractnumber_en(text, remove_articles)
         return extractnumber_en(text)
+    elif lang_lower.startswith("es"):
+        return extractnumber_es(text)
     elif lang_lower.startswith("pt"):
         return extractnumber_pt(text)
     elif lang_lower.startswith("it"):
