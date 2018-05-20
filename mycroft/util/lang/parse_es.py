@@ -271,7 +271,7 @@ def extractnumber_es(text):
         if dec == "0":
             result = int(integer)
 
-    return result
+        return result
 
 
 def es_number_parse(words, i):

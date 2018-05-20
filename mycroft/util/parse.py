@@ -143,6 +143,8 @@ def extract_datetime(text, anchorDate=None, lang="en-us"):
 
     if lang_lower.startswith("en"):
         return extract_datetime_en(text, anchorDate)
+    elif lang_lower.startswith("es"):
+        return extract_datetime_es(text, anchorDate)
     elif lang_lower.startswith("pt"):
         return extract_datetime_pt(text, anchorDate)
     elif lang_lower.startswith("it"):
@@ -191,10 +193,12 @@ def get_gender(word, input_string="", lang="en-us"):
     guess gender of word, optionally use raw input text for context
     returns "m" if the word is male, "f" if female, False if unknown
     '''
-    if "pt" in lang or "es" in lang:
-        # spanish follows same rules
+    if "pt" in lang:
         return get_gender_pt(word, input_string)
+    # spanish no longer follows pt rules as there are exceptions
+    # like 'buey' or 'ley' where we need to see the preceding article
+    elif "es" in lang:
+        return get_gender_es(word, input_string)
     elif "it" in lang:
         return get_gender_it(word, input_string)
-
     return False
