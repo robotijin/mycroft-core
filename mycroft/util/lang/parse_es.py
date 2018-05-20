@@ -141,16 +141,48 @@ def isFractional_es(input_str):
         return 1.0 / 1000
     return False
 
+def extractnumber_long_es(word):
+    """
+    Questa funzione converte un numero testuale lungo es.
+    ventisette -> 27
+    quarantuno -> 41
+    nell'equivalente valore intero
+     args:
+         text (str): la stringa da normalizzare
+    Ritorna:
+         (int) : il valore del numero estratto usando tutta la parola
+         Falso : se la parola non è un numero es."qualcuno"
+    """
+    result = False
+    value = False
+
+    for number in es_numbers.keys():  # ciclo unità
+        if word.endswith(number):
+            result = True
+            value = es_numbers[number]
+            word = word[0: len(word) - len(number)]
+            break
+
+    if result:  # tolte le unità, dovrebbe rimanere una stringa nota
+        if word in es_numbers:
+            value += es_numbers[word]
+        else:
+            value = False  # non è un numero es. qualcuno
+
+    return value
 
 
 def extractnumber_es(text):
     """
-    This function prepares the given text for parsing by making
-    numbers consistent, getting rid of contractions, etc.
-    Args:
-        text (str): the string to normalize
-    Returns:
-        (int) or (float): The value of extracted number
+    Questa funzione prepara il testo dato per l'analisi rendendo
+    numeri testuali come interi o frazioni.
+    In italiano non è un modo abituale ma può essere interessante
+    per Mycroft
+    E' la versione portoghese riadattata in italiano
+     args:
+         text (str): la stringa da normalizzare
+    Ritorna:
+         (int) o (float): il valore del numero estratto
 
     """
     aWords = text.split()
@@ -169,7 +201,13 @@ def extractnumber_es(text):
 
         # is current word a number?
         if word in es_numbers:
-            val = es_numbers[word]
+            if word == "mil":
+                val = es_numbers[word]
+                val = result * val
+                result = 0
+            else:
+                val = es_numbers[word]
+
         elif word.isdigit():  # doesn't work with decimals
             val = int(word)
         elif is_numeric(word):
@@ -189,14 +227,18 @@ def extractnumber_es(text):
             if look_for_fractions(aPieces):
                 val = float(aPieces[0]) / float(aPieces[1])
 
+        if not val:
+            # cerca numero composto come ventuno ventitre centoventi"
+            val = extractnumber_long_es(word)
+
         if val:
             if result is None:
                 result = 0
             # handle fractions
-            if next_word != "avos":
-                result += val
-            else:
-                result = float(result) / float(val)
+            # if next_word != "avos":
+            result += val
+            # else:
+            #    result = float(result) / float(val)
 
         if next_word is None:
             break
@@ -271,8 +313,7 @@ def extractnumber_es(text):
         if dec == "0":
             result = int(integer)
 
-        return result
-
+    return result
 
 def es_number_parse(words, i):
     def es_cte(i, s):
@@ -348,7 +389,6 @@ def es_number_parse(words, i):
         return None
 
     return es_number(i)
-
 
 def normalize_es(text, remove_articles):
     """ Spanish string normalization """
