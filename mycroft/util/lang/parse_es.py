@@ -1187,7 +1187,7 @@ def extract_datetime_es(input_str, currentDate=None):
         elif word == "hoy" and not fromFlag:
             dayOffset = 0
             used += 1
-        elif word == u"mañana" and not fromFlag:
+        elif word == "popopo" and not fromFlag:
             dayOffset = 1
             used += 1
         elif word == "ayer" and not fromFlag:
