@@ -227,20 +227,22 @@ class TestNormalize(unittest.TestCase):
         # Hay que hacer algo con las "y"
         testExtract_es("Organiza una visita 2 semanas y 6 días desde el sábado",
                        "2017-07-21 00:00:00", "organiza visita y")
-        # testExtract_es("Commencer l'invasion à 3 heures 45 jeudi",
-        #                "2017-06-29 03:45:00", "commencer invasion")
-        # testExtract_es("Commencer l'invasion à 20 heures jeudi",
-        #                "2017-06-29 20:00:00", "commencer invasion")
-        # testExtract_es("Lancer la fête jeudi à 8 heures du soir",
-        #                "2017-06-29 20:00:00", "lancer fête")
-        # testExtract_es("Commencer l'invasion à 4 heures de l'après-midi jeudi",
-        #                "2017-06-29 16:00:00", "commencer invasion")
-        # testExtract_es("Commencer l'invasion jeudi à midi",
-        #                "2017-06-29 12:00:00", "commencer invasion")
-        # testExtract_es("Commencer l'invasion jeudi à minuit",
-        #                "2017-06-29 00:00:00", "commencer invasion")
-        # testExtract_es("Commencer l'invasion jeudi à dix-sept heures",
-        #                "2017-06-29 17:00:00", "commencer invasion")
+        # tenemos que interpretar formatos como "3h 45" o "3 horas 45"?
+        testExtract_es("Inicia la invasión a las 3 45 del jueves",
+                       "2017-06-29 03:45:00", "inicia invasión")
+        testExtract_es("Inicia la invasión a las 20 horas del jueves",
+                       "2017-06-29 20:00:00", "inicia invasión")
+        testExtract_es("La fiesta empieza el jueves a las 8 de la tarde",
+                       "2017-06-29 20:00:00", "la fiesta empieza")
+        # esta frase que sigue, poniendo el día después de la hora, no la entiende
+        # testExtract_es("Inicia la invasión a las 4 de la tarde del jueves",
+        #                "2017-06-29 16:00:00", "inicia invasión")
+        # testExtract_es("Inicia la invasión el jueves a mediodía",
+        #                "2017-06-29 12:00:00", "inicia invasión")
+        # testExtract_es("Inicia la invasión el jeudi à minuit",
+        #                "2017-06-29 00:00:00", "inicia invasión")
+        # testExtract_es("Inicia la invasión el jeudi à dix-sept heures",
+        #                "2017-06-29 17:00:00", "inicia invasión")
         # testExtract_es("rappelle-moi de me réveiller dans 4 années",
         #                "2021-06-27 00:00:00", "rappelle-moi me réveiller")
         # testExtract_es("rappelle-moi de me réveiller dans 4 ans et 4 jours",

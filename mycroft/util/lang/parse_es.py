@@ -1147,7 +1147,7 @@ def extract_datetime_es(input_str, currentDate=None):
     timeQualifier = ""
 
     words = clean_string(input_str).split(" ")
-    timeQualifiersList = [u'mañana', 'tarde', 'noche']
+    timeQualifiersList = [u'la mañana', 'tarde', 'noche', u"mediodía"]
     time_indicators = ["en", "la", "al", "por", "pasados",
                        "pasadas", u"día", "hora"]
     days = ['lunes', 'martes', u'miércoles',
@@ -1609,7 +1609,7 @@ def extract_datetime_es(input_str, currentDate=None):
                         if timeQualifier != "":
                             # military = True
                             if strHH <= 12 and \
-                                    (timeQualifier == u"mañana" or
+                                    (timeQualifier == u"la mañana" or
                                      timeQualifier == "tarde"):
                                 strHH += 12
 
