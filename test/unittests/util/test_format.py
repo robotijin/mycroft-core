@@ -81,9 +81,9 @@ class TestNiceNumberFormat(unittest.TestCase):
                              nice_number(6.0, speech=False)))
 
     def test_different_language(self):
-        self.assertEqual(nice_number(5.5, lang="es-us"), '5.5',
+        self.assertEqual(nice_number(5.5, lang="foo-bar"), '5.5',
                          'should format 5.5 as 5.5 not {}'.format(
-                             nice_number(5.5, lang="es-us")))
+                             nice_number(5.5, lang="foo-bar")))
 
 
 # def pronounce_number(number, lang="en-us", places=2):
