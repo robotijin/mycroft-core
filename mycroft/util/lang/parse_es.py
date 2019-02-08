@@ -92,7 +92,7 @@ es_numbers = {
     "novecientos": 900,
     "novecientas": 900,
     # "mil": 1000,
-    u"millón": 1000000}
+    "millón": 1000000}
 
 
 def isFractional_es(input_str):
@@ -535,7 +535,7 @@ def extract_datetime_es(input_str, currentDate=None):
                           "ene", "feb", "mar", "abr", "may", "jun",
                           "jul", "ago", "sep", "oct", "nov", "dic"
                          ]
-    nexts              = ["siguiente", "próximo", "próxima"]
+    nexts              = ["siguiente", "próximo", "próxima", "dentro de"]
     suffix_nexts       = ["siguientes", "subsecuentes"]
     lasts              = ["último", "última"]
     suffix_lasts       = ["pasada", "pasado", "anterior", "antes"]
@@ -543,7 +543,8 @@ def extract_datetime_es(input_str, currentDate=None):
     prevs              = ["antes", "previa", "previo", "anterior"]
     froms              = [
                           "desde", "en", "para", "después de",
-                          "por", "próximo", "próxima", "de", "partir"
+                          "por", "próximo", "próxima", "de", "partir",
+                          "dentro de"
                          ]
     thises             = ["este", "esta"]
 
@@ -1036,7 +1037,8 @@ def extract_datetime_es(input_str, currentDate=None):
                         used = 1
                     elif (wordNext == "am" or
                           wordNext == "a.m." or
-                          wordNext == "mañana"):
+                          wordNext == "mañana" or
+                          wordNext == "madrugada"):
                         strHH = strNum
                         remainder = "am"
                         used = 1
@@ -1067,14 +1069,14 @@ def extract_datetime_es(input_str, currentDate=None):
                         hrAbs = -1
                         minAbs = -1
 
-                    elif wordNext == "minuto":
+                    elif wordNext == "minutos":
                         # "in 10 minutes"
                         minOffset = int(word)
                         used = 2
                         isTime = False
                         hrAbs = -1
                         minAbs = -1
-                    elif wordNext == "segundo":
+                    elif wordNext == "segundos":
                         # in 5 seconds
                         secOffset = int(word)
                         used = 2
@@ -1170,7 +1172,7 @@ def extract_datetime_es(input_str, currentDate=None):
             'december'
         ]
         en_monthsShort = [
-            'jan', 'feb', 'mar', 'apr', 'may', 'june', 'july',
+            'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul',
             'aug', 'sept', 'oct', 'nov', 'dec'
         ]
         for idx, en_month in enumerate(en_months):

@@ -33,6 +33,14 @@ class TestNormalize(unittest.TestCase):
             "esta es prueba"
         )
         self.assertEqual(
+            normalize("este es el exámen", lang="es", remove_articles=True),
+            "este es exámen"
+        )
+        self.assertEqual(
+            normalize("estos son los carácteres", lang="es", remove_articles=True),
+            "estos son carácteres"
+        )
+        self.assertEqual(
             normalize("y otra prueba", lang="es", remove_articles=True),
             "y otra prueba"
         )
@@ -158,7 +166,7 @@ class TestNormalize(unittest.TestCase):
         self.assertEqual(get_gender("hombres", "estos hombres comen pasta",
                                     lang="es"), "m")
         self.assertEqual(get_gender("puente", "el puente", lang="es"), "m")
-        self.assertEqual(get_gender("puente", u"este puente ha caído",
+        self.assertEqual(get_gender("puente", "este puente ha caído",
                                     lang="es"), "m")
         self.assertEqual(get_gender("escultora", "esta famosa escultora",
                                     lang="es"), "f")
@@ -176,7 +184,7 @@ class TestNormalize(unittest.TestCase):
     def test_extractdatetime_es(self):
         def extractWithFormat_es(text):
             date = datetime(2017, 6, 27, 0, 0)
-            #if text == "Inicia la invasión a las 4 de la tarde del jueves":
+            # if text == "Inicia la invasión a las 4 de la tarde del jueves":
             #    import pdb; pdb.set_trace()
             [extractedDate, leftover] = extract_datetime(
                 text,
@@ -246,13 +254,15 @@ class TestNormalize(unittest.TestCase):
         testExtract_es("Reproducir música Beyonce 2 días desde el viernes",
                        "2017-07-02 00:00:00", "reproducir música beyonce")
         # La siguiente frase, aunque signigique lo mismo, no la entiende
-        #testExtract_es(
-        #    "Reproducir música Beyonce 2 días después de este viernes",
-        #    "2017-07-02 00:00:00",
-        #    "reproducir música beyonce"
-        #)
+        testExtract_es(
+           "Reproducir música Beyonce este domingo",
+           "2017-07-02 00:00:00",
+           "reproducir música beyonce"
+        )
         testExtract_es("Empezar la invasión a las 15:45 del jueves",
                        "2017-06-29 15:45:00", "empezar invasión")
+        testExtract_es("Qué día es mañana",
+                       "2017-06-28 00:00:00", "qué día es")
         testExtract_es(
             "El lunes reserva un pastel en la panadería",
             "2017-07-03 00:00:00",
@@ -264,13 +274,13 @@ class TestNormalize(unittest.TestCase):
         # reconoce. Además, a "cumpleaños" le quita la "s" del final
         # testExtract_es("Reproduce el Cumpleaños Feliz de aquí a 5 años",
         #                "2022-06-27 00:00:00", "reproduce cumpleaño feliz")
-        # testExtract_es("Hacer un Skype a mamá el próximo jueves a las 12:45",
-        #                "2017-07-06 12:45:00", "hacer un skype")
+        testExtract_es("Skype con mamá el siguiente jueves a las 12:45",
+                       "2017-07-06 12:45:00", "skype con mamá")
         # En la siguiente frase, no entiende "el próximo", si no "el siguiente"
         testExtract_es("Qué tiempo hará el siguiente jueves?",
                        "2017-07-06 00:00:00", "qué tiempo hará")
-        #testExtract_es("Qué tiempo hará el viernes por la mañana ?",
-        #               "2017-06-30 08:00:00", "qué tiempo hará")
+        testExtract_es("Qué tiempo hará este viernes a las 8 ?",
+                      "2017-06-30 08:00:00", "qué tiempo hará")
         # En castellano no hay "evening", pero "tarde noche" debería entenderse
         # testExtract_es("Qué tiempo hará el viernes por la tarde noche",
         #                "2017-06-30 19:00:00", "qué tiempo hará")
@@ -281,9 +291,9 @@ class TestNormalize(unittest.TestCase):
         )
         testExtract_es("recuérdame llamar a mamá el 3 de agosto",
                        "2017-08-03 00:00:00", "recuérdame llamar mamá")
-        # Por algún motivo, en la siguiente frase entiende "julyy 14"
-        # testExtract_es("Compra fuegos artificiales el 14 de julio",
-        #                "2017-07-14 00:00:00", "compra fuegos artificiales")
+
+        testExtract_es("Compra fuegos artificiales el 15 de julio",
+                       "2017-07-15 00:00:00", "compra fuegos artificiales")
         # testExtract_es("Qué tiempo hará 2 semanas después del viernes?",
         #                "2017-07-14 00:00:00", "qué tiempo hará")
         testExtract_es(
@@ -328,138 +338,140 @@ class TestNormalize(unittest.TestCase):
             "2017-06-29 16:00:00",
             "inicia invasión"
         )
-        #testExtract_es(
-        #    "Inicia la invasión el jueves a mediodía",
-        #    "2017-06-29 12:00:00",
-        #    "inicia invasión"
-        #)
-        # testExtract_es("Inicia la invasión el jeudi à minuit",
-        #                "2017-06-29 00:00:00", "inicia invasión")
-        # testExtract_es("Inicia la invasión el jeudi à dix-sept heures",
-        #                "2017-06-29 17:00:00", "inicia invasión")
-        # testExtract_es("rappelle-moi de me réveiller dans 4 années",
-        #                "2021-06-27 00:00:00", "rappelle-moi me réveiller")
-        # testExtract_es("rappelle-moi de me réveiller dans 4 ans et 4 jours",
-        #                "2021-07-01 00:00:00", "rappelle-moi me réveiller")
-        # testExtract_es("Qué tiempo hará 3 jours après demain ?",
+        # En el siguiente caso, entiende medio día (half day), no mediodía (noon)
+        testExtract_es(
+           "Inicia la invasión el jueves a medio día",
+           "2017-06-29 12:00:00",
+           "inicia invasión"
+        )
+        testExtract_es("Inicia la invasión el jueves a media noche",
+                       "2017-06-29 00:00:00", "inicia invasión")
+        testExtract_es("Inicia la invasión el jueves a media tarde",
+                       "2017-06-29 17:00:00", "inicia invasión")
+        testExtract_es("despiértame en 4 años",
+                       "2021-06-27 00:00:00", "despiértame")
+        testExtract_es("despiértame en 4 años y 4 días",
+                       "2021-07-01 00:00:00", "despiértame y")
+        # testExtract_es("Qué tiempo hará 3 días después de mañana ?",
         #                "2017-07-01 00:00:00", "qué tiempo hará")
-        # testExtract_es("3 décembre",
-        #                "2017-12-03 00:00:00", "")
-        # testExtract_es("retrouvons-nous à 8:00 ce soir",
-        #                "2017-06-27 20:00:00", "retrouvons-nous")
-        # testExtract_es("retrouvons-nous demain à minuit et demi",
-        #                "2017-06-28 00:30:00", "retrouvons-nous")
-        # testExtract_es("retrouvons-nous à midi et quart",
-        #                "2017-06-27 12:15:00", "retrouvons-nous")
-        # testExtract_es("retrouvons-nous à midi moins le quart",
-        #                "2017-06-27 11:45:00", "retrouvons-nous")
-        # testExtract_es("retrouvons-nous à midi moins dix",
-        #                "2017-06-27 11:50:00", "retrouvons-nous")
-        # testExtract_es("retrouvons-nous à midi dix",
-        #                "2017-06-27 12:10:00", "retrouvons-nous")
-        # testExtract_es("retrouvons-nous à minuit moins 23",
-        #                "2017-06-27 23:37:00", "retrouvons-nous")
-        # testExtract_es("mangeons à 3 heures moins 23 minutes",
-        #                "2017-06-27 02:37:00", "mangeons")
-        # testExtract_es("mangeons aussi à 4 heures moins le quart du matin",
-        #                "2017-06-27 03:45:00", "mangeons aussi")
-        # testExtract_es("mangeons encore à minuit moins le quart",
-        #                "2017-06-27 23:45:00", "mangeons encore")
-        # testExtract_es("buvons à 4 heures et quart",
-        #                "2017-06-27 04:15:00", "buvons")
-        # testExtract_es("buvons également à 18 heures et demi",
-        #                "2017-06-27 18:30:00", "buvons également")
-        # testExtract_es("dormons à 20 heures moins le quart",
-        #                "2017-06-27 19:45:00", "dormons")
-        # testExtract_es("buvons le dernier verre à 10 heures moins 12 du soir",
-        #                "2017-06-27 21:48:00", "buvons dernier verre")
-        # testExtract_es("s'échapper de l'île à 15h45",
-        #                "2017-06-27 15:45:00", "s'échapper île")
-        # testExtract_es("s'échapper de l'île à 3h45min de l'après-midi",
-        #                "2017-06-27 15:45:00", "s'échapper île")
-        # testExtract_es("décale donc ça à 3h48min cet après-midi",
-        #                "2017-06-27 15:48:00", "décale donc ça")
-        # testExtract_es("construire un bunker à 9h42min du matin",
-        #                "2017-06-27 09:42:00", "construire 1 bunker")
-        # testExtract_es("ou plutôt à 9h43 ce matin",
-        #                "2017-06-27 09:43:00", "ou plutôt")
-        # testExtract_es("faire un feu à 8h du soir",
-        #                "2017-06-27 20:00:00", "faire 1 feu")
-        # testExtract_es("faire la fête jusqu'à 18h cette nuit",
-        #                "2017-06-27 18:00:00", "faire fête jusqu'à")
-        # testExtract_es("cuver jusqu'à 4h cette nuit",
-        #                "2017-06-27 04:00:00", "cuver jusqu'à")
-        # testExtract_es("réveille-moi dans 20 secondes aujourd'hui",
-        #                "2017-06-27 00:00:20", "réveille-moi")
-        # testExtract_es("réveille-moi dans 33 minutes",
-        #                "2017-06-27 00:33:00", "réveille-moi")
-        # testExtract_es("tais-toi dans 12 heures et 3 minutes",
-        #                "2017-06-27 12:03:00", "tais-toi")
-        # testExtract_es("ouvre-la dans 1 heure 3",
-        #                "2017-06-27 01:03:00", "ouvre-la")
-        # testExtract_es("ferme-la dans 1 heure et quart",
-        #                "2017-06-27 01:15:00", "ferme-la")
-        # testExtract_es("scelle-la dans 1 heure et demi",
-        #                "2017-06-27 01:30:00", "scelle-la")
-        # testExtract_es("zippe-la dans 2 heures moins 12",
-        #                "2017-06-27 01:48:00", "zippe-la")
-        # testExtract_es("soude-la dans 3 heures moins le quart",
-        #                "2017-06-27 02:45:00", "soude-la")
-        # testExtract_es("mange la semaine prochaine",
-        #                "2017-07-04 00:00:00", "mange")
-        # testExtract_es("bois la semaine dernière",
-        #                "2017-06-20 00:00:00", "bois")
-        # testExtract_es("mange le mois prochain",
-        #                "2017-07-27 00:00:00", "mange")
-        # testExtract_es("bois le mois dernier",
-        #                "2017-05-27 00:00:00", "bois")
-        # testExtract_es("mange l'an prochain",
-        #                "2018-06-27 00:00:00", "mange")
-        # testExtract_es("bois l'année dernière",
-        #                "2016-06-27 00:00:00", "bois")
-        # testExtract_es("reviens à lundi dernier",
-        #                "2017-06-26 00:00:00", "reviens")
-        # testExtract_es("capitule le 8 mai 1945",
-        #                "1945-05-08 00:00:00", "capitule")
-        # testExtract_es("rédige le contrat 3 jours après jeudi prochain",
-        #                "2017-07-09 00:00:00", "rédige contrat")
-        # testExtract_es("signe le contrat 2 semaines après jeudi dernier",
-        #                "2017-07-06 00:00:00", "signe contrat")
-        # testExtract_es("lance le four dans un quart d'heure",
-        #                "2017-06-27 00:15:00", "lance four")
-        # testExtract_es("enfourne la pizza dans une demi-heure",
-        #                "2017-06-27 00:30:00", "enfourne pizza")
-        # testExtract_es("arrête le four dans trois quarts d'heure",
-        #                "2017-06-27 00:45:00", "arrête four")
-        # testExtract_es("mange la pizza dans une heure",
-        #                "2017-06-27 01:00:00", "mange pizza")
-        # testExtract_es("bois la bière dans 2h23",
-        #                "2017-06-27 02:23:00", "bois bière")
-        # testExtract_es("faire les plantations le 3ème jour de mars",
-        #                "2018-03-03 00:00:00", "faire plantations")
-        # testExtract_es("récolter dans 10 mois",
-        #                "2018-04-27 00:00:00", "récolter")
+        testExtract_es("3 diciembre",
+                       "2017-12-03 00:00:00", "")
+        testExtract_es("nos vemos a las 8:00 de esta noche.",
+                       "2017-06-27 20:00:00", "nos vemos")
+        # en castellano se dice las doce y media, no cero y media                       
+        # testExtract_es("nos vemos mañana a las doce y media de la noche",
+        #                "2017-06-28 00:30:00", "nos vemos")
+        # testExtract_es("nos vemos a las doce y media",
+        #                "2017-06-27 12:30:00", "nos vemos")
+        # testExtract_es("nos vemos a las doce menos cuarto",
+        #                "2017-06-27 11:45:00", "nos vemos")
+        # testExtract_es("nos vemos a las doce menos diez",
+        #                "2017-06-27 11:50:00", "nos vemos")
+        # testExtract_es("nos vemos a las doce y diez",
+        #                "2017-06-27 12:10:00", "nos vemos")
+        # testExtract_es("nos vemos a las once y treinta y siete de la noche",
+        #                "2017-06-27 23:37:00", "nos vemos")
+        # testExtract_es("comemos a las 3 horas menos 23 minutoss",
+        #                "2017-06-27 02:37:00", "comemos")
+        # testExtract_es("comemos a las cuatro menos cuarto de la madrugada",
+        #                "2017-06-27 03:45:00", "comemos")
+        # testExtract_es("beberé a las cuatro y cuarto de la madrugada",
+        #                "2017-06-27 04:15:00", "beberé")
+        # testExtract_es("beberé a las seis y media de la tarde",
+        #                "2017-06-27 18:30:00", "beberé")
+        # testExtract_es("dormiré a las ocho menos cuarto de la tarde noche",
+        #                "2017-06-27 19:45:00", "dormiré")
+        # testExtract_es("beberé el último trago a las 10 de la noche.",
+        #                "2017-06-27 22.00:00", "beberé último trago")
+        testExtract_es("escapada de la isla a las 15 45",
+                       "2017-06-27 15:45:00", "escapada isla")
+        testExtract_es("escapada de la isla a las 3:45 de la tarde",
+                       "2017-06-27 15:45:00", "escapada isla")
+        testExtract_es("así que muévelo a las 3:48 de la tarde.",
+                       "2017-06-27 15:48:00", "así que muévelo")
+        testExtract_es("construir un búnker a las 9:42 am",
+                       "2017-06-27 09:42:00", "construir búnker")
+        # testExtract_es("o más bien a las 9:43 de la mañana",
+        #                "2017-06-27 09:43:00", "o más bien")
+        testExtract_es("hacer una hoguera a las 8:00 de la noche",
+                       "2017-06-27 20:00:00", "hacer hoguera")
+        # testExtract_es("fiesta hasta las 18h de esta tarde",
+        #                "2017-06-27 18:00:00", "fiesta hasta")
+        testExtract_es("dormir hasta las 4 de la madrugada",
+                       "2017-06-27 04:00:00", "dormir hasta")
+        # testExtract_es("Despiértame dentro de 20 segundos",
+        #                "2017-06-27 00:00:20", "Despiértame")
+        # testExtract_es("Despiértame en 33 minutos.",
+        #                "2017-06-27 00:33:00", "Despiértame")
+        # testExtract_es("Cállate de aquí as 12 horas y 3 minutos",
+        #                "2017-06-27 12:03:00", "Cállate")
+        # testExtract_es("ábrelo a la una y tres",
+        #                "2017-06-27 01:03:00", "ábrelo")
+        # testExtract_es("Cállate en una hora y cuarto.",
+        #                "2017-06-27 01:15:00", "Cállate")
+        # testExtract_es("sellarlo dentro de una hora y media",
+        #                "2017-06-27 01:30:00", "sellarlo")
+        # testExtract_es("apaga en dos horas menos 12.",
+        #                "2017-06-27 01:48:00", "apaga")
+        # testExtract_es("Soldarlo en 2 horas y 45",
+        #                "2017-06-27 02:45:00", "Soldarlo")
+        # testExtract_es("come la semana que viene",
+        #                "2017-07-04 00:00:00", "come")
+        # testExtract_es("madera la semana pasada",
+        #                "2017-06-20 00:00:00", "madera")
+        # testExtract_es("comer el mes que viene",
+        #                "2017-07-27 00:00:00", "comer")
+        # testExtract_es("madera el mes pasado",
+        #                "2017-05-27 00:00:00", "madera")
+        # testExtract_es("come el año que viene",
+        #                "2018-06-27 00:00:00", "come")
+        # testExtract_es("madera el pasado año",
+        #                "2016-06-27 00:00:00", "madera")
+        testExtract_es("volver al pasado lunes",
+                       "2017-06-26 00:00:00", "volver")
+        # testExtract_es("volver al lunes pasado",
+        #                "2017-06-26 00:00:00", "volver")                       
+        # testExtract_es("entregado el 8 de mayo de 1945",
+        #                "1945-05-08 00:00:00", "entregado")
+        # testExtract_es("redacta el contrato 3 días después del próximo jueves",
+        #                "2017-07-09 00:00:00", "redacta contrato")
+        # testExtract_es("firma el contrato 2 semanas después del jueves pasado",
+        #                "2017-07-06 00:00:00", "firma contrato")
+        testExtract_es("enciende el horno en un cuarto de hora",
+                       "2017-06-27 00:15:00", "enciende horno")
+        testExtract_es("poner la pizza en el horno en media hora",
+                       "2017-06-27 00:30:00", "poner pizza en horno")
+        # testExtract_es("apaga el horno en tres cuartos de hora",
+        #                "2017-06-27 00:45:00", "apaga horno")
+        # testExtract_es("comer la pizza dentro de una hora",
+        #                "2017-06-27 01:00:00", "comer pizza")
+        # testExtract_es("beber la cerveza en 2 horas y 23 minutos",
+        #                "2017-06-27 02:23:00", "beber cerveza")
+        testExtract_es("planta el 3 de marzo",
+                       "2018-03-03 00:00:00", "planta")
+        testExtract_es("cosecha en 10 meses",
+                       "2018-04-27 00:00:00", "cosecha")
         # testExtract_es("point 6a: dans 10 mois",
         #                "2018-04-27 06:00:00", "point")
-        # testExtract_es("l'après-midi démissionner à 4:59",
-        #                "2017-06-27 16:59:00", "démissionner")
-        # testExtract_es("cette nuit dormir",
+        testExtract_es("después del mediodía dimitir a las 4:59 pm",
+                       "2017-06-27 16:59:00", "después mediodía dimitir")
+        # testExtract_es("dormir a las dos de la madrugada",
         #                "2017-06-27 02:00:00", "dormir")
-        # testExtract_es("ranger son bureau à 1700 heures",
-        #                "2017-06-27 17:00:00", "ranger son bureau")
+        testExtract_es("ordenar su escritorio a las 1700 horas",
+                       "2017-06-27 17:00:00", "ordenar su escritorio")
 
-        # testExtractDate2_es("range le contrat 2 semaines après lundi",
-        #                     "2017-07-17 00:00:00", "range contrat")
-        # testExtractDate2_es("achète-toi de l'humour à 15h",
-        #                     "2017-07-01 15:00:00", "achète-toi humour")
-        # testExtractNoDate_es("tais-toi aujourd'hui",
-        #                      datetime.now().strftime("%Y-%m-%d") + " 00:00:00",
-        #                      "tais-toi")
+        # testExtractDate2_es("guardar el contrato 2 semanas después del lunes",
+        #                     "2017-07-17 00:00:00", "guardar contrato")
+        testExtractDate2_es("cómprate un poco de humor a las 3:00 p.m.",
+                            "2017-07-01 15:00:00", "cómprate poco humor")
+        testExtractNoDate_es("cállate hoy",
+                             datetime.now().strftime("%Y-%m-%d") + " 00:00:00",
+                             "cállate")
         # self.assertEqual(extract_datetime("", lang="es-es"), None)
-        # self.assertEqual(extract_datetime("phrase inutile", lang="es-es"),
+        # self.assertEqual(extract_datetime("frase inútil", lang="es-es"),
         #                  None)
         # self.assertEqual(extract_datetime(
-        #     "apprendre à compter à 37 heures", lang="es-es"), None)
+        #     "aprender a contar a las 37 horas", lang="es-es"), None)
 
 
 if __name__ == "__main__":
